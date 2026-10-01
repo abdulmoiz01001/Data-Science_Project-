@@ -1,0 +1,3165 @@
+
+# === CELL 0 (code) ===
+import numpy as np 
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# === CELL 1 (code) ===
+customers_data = pd.read_csv("../data/customers.csv")
+orders_data = pd.read_csv("../data/orders.csv")
+products_data = pd.read_csv("../data/products.csv")
+# === CELL 2 (code) ===
+print("--------------------customers------------------------")
+print(customers_data.head())
+print("--------------------orders------------------------")
+print(orders_data.head())
+print("--------------------products------------------------")
+print(products_data.head())
+# === CELL 3 (code) ===
+print("Start Phase 1")
+
+print("Investigation of Data of Customers")
+
+print(f"Rows and Columns \n {customers_data.shape}")
+print(f"Columns \n {customers_data.columns}")
+print(f"Information \n {customers_data.info()}")
+print(f"Missing Values \n {customers_data.isnull().sum()}")
+print(f"Duplicate Rows \n {customers_data.duplicated().sum()}")
+print(f"Statics Insgihts \n {customers_data.describe(include="all")}")
+
+print(f"customer age total foramtes : {customers_data["age"].unique()}")
+print(f"customer city total foramtes : {customers_data["city"].unique()}")
+print(f"customer gender total foramtes : {customers_data["gender"].value_counts()}")
+print(f"Email validations analysis :\n {customers_data[
+    customers_data["email"].str.contains("@", na=False)
+]}")
+
+print("Investigation of Data of Orders========================================================")
+
+print(f"Rows and Columns \n {orders_data.shape}")
+print(f"Columns \n {orders_data.columns}")
+print(f"Information \n {orders_data.info()}")
+print(f"Missing Values \n {orders_data.isnull().sum()}")
+print(f"Duplicate Rows \n {orders_data.duplicated().sum()}")
+print(f"Statics Insgihts \n {orders_data.describe(include="all")}")
+
+print(f"Orders Relation with Customer  \n { orders_data["customer_id"].isin(customers_data["customer_id"]).all()}")
+total_unmatched_and_matched_customer_ids = orders_data["customer_id"].isin(customers_data["customer_id"])
+
+print(total_unmatched_and_matched_customer_ids.value_counts())
+print(f"Orders Relation with Products  \n { orders_data["product_id"].isin(products_data["product_id"]).all()}")
+
+total_unmatched_and_matched_products_ids = orders_data["product_id"].isin(products_data["product_id"])
+
+print(total_unmatched_and_matched_products_ids.value_counts())
+
+print(f" orders status : \n {orders_data["order_status"].value_counts()}")
+
+print(f"orders payment method : \n  {orders_data["payment_method"].value_counts(dropna=False)}" )
+
+
+print("Investigation of Data of Products=======================================================")
+
+print(f"Rows and Columns \n {products_data.shape}")
+print(f"Columns \n {products_data.columns}")
+print(f"Information \n {products_data.info()}")
+print(f"Missing Values \n {products_data.isnull().sum()}")
+print(f"Duplicate Rows \n {products_data.duplicated().sum()}")
+print(f"Statics Insgihts \n {products_data.describe(include="all")}")
+
+print(f"prodcuts categories : \n {products_data["category"].value_counts()}")
+print(f"products prices : \n {products_data["price"].sample(20)}")
+
+print(f"suppliers : \n {products_data["supplier"].unique()}")
+# === CELL 4 (code) ===
+# creating dataset copies for initiating cleaning phase 2 ( Step - 1 )
+customers_clean = customers_data.copy()
+orders_clean = orders_data.copy()
+products_clean = products_data.copy()
+# === CELL 5 (code) ===
+# Remove Exact Duplicate values 
+
+print("=========================before=====================")
+print(customers_clean.duplicated().sum())
+print("====================================================")
+print(orders_clean.duplicated().sum())
+print("====================================================")
+print(products_clean.duplicated().sum())
+
+print("Customers")
+print(f"Before : {len(customers_clean)}")
+print("Orders")
+print(f"Before : {len(orders_clean)}")
+print("Products")
+print(f"Before : {len(products_clean)}")
+
+customers_clean.drop_duplicates(inplace=True)
+orders_clean.drop_duplicates(inplace=True)
+products_clean.drop_duplicates(inplace=True)
+
+
+print("=====================After======================")
+print(customers_clean.duplicated().sum())
+print("====================================================")
+print(orders_clean.duplicated().sum())
+print("====================================================")
+print(products_clean.duplicated().sum())
+
+
+
+print("Customers")
+print(f"After : {len(customers_clean)}")
+print("Orders")
+print(f"After : {len(orders_clean)}")
+print("Products")
+print(f"After : {len(products_clean)}")
+
+
+# === CELL 6 (code) ===
+# Standardize Text. Phase 2 ( Step - 2 )
+
+print("=================Before===========================")
+print(customers_clean["city"].unique())
+# Remove Spaces using strip()
+customers_clean["city"] = customers_clean["city"].str.strip()
+# Make Capitalize Words using title()
+customers_clean["city"] = customers_clean["city"].str.title()
+print("=================After===========================")
+print(customers_clean["city"].unique())
+# === CELL 7 (code) ===
+# Standardize Text. Phase 2 ( Step - 2 )
+
+print("=================Before===========================")
+print(customers_clean["city"].unique())
+print(customers_clean["country"].unique())
+print(products_clean["product_name"].unique())
+print(customers_clean["email"].unique())
+print(customers_clean["gender"].unique())
+print(orders_clean["payment_method"].unique())
+print(orders_clean["order_status"].unique())
+print(products_clean["category"].unique())
+print(products_data["supplier"].unique())
+# Remove Spaces using strip()
+customers_clean["gender"] = customers_clean["gender"].str.strip().str.title()
+
+customers_clean["gender"] = customers_clean["gender"].replace({
+    "M":"Male",
+    "F":"Female"
+})
+
+orders_clean["payment_method"] = orders_clean["payment_method"].str.strip().str.title()
+
+
+
+orders_clean["order_status"] = orders_clean["order_status"].str.strip().str.title()
+products_clean["category"] = products_clean["category"].str.strip().str.title()
+# customers_clean["city"] = customers_clean["city"].str.strip()
+# Make Capitalize Words using title()
+# customers_clean["city"] = customers_clean["city"].str.title()
+print("=================After===========================")
+print(customers_clean["city"].unique())
+print(customers_clean["email"].unique())
+print(customers_clean["country"].unique())
+
+
+print(customers_clean["gender"].unique())
+print(orders_clean["payment_method"].unique())
+print(orders_clean["order_status"].unique())
+print(products_clean["category"].unique())
+print(products_clean["supplier"].unique())
+print(products_clean["product_name"].unique())
+# === CELL 8 (code) ===
+#justify the target datatype for each column.
+print("==================Customers Data Types=======================")
+print(customers_clean.dtypes)
+print(customers_clean.sample(20))
+print("==================Orders Data Types=======================")
+print(orders_clean.dtypes)
+print(orders_clean.sample(20))
+print("==================Products Data Types=======================")
+print(products_clean.dtypes)
+print(products_clean.sample(20))
+# === CELL 9 (code) ===
+# manually vlues that can be recovered values 
+
+customers_clean["age"] = customers_clean["age"].replace({
+    "twenty five":"25"
+})
+
+products_clean["price"] = products_clean["price"].str.replace("$","",regex=False)
+
+
+#justify the target datatype for each column after manually solved some minor values that can be recover
+print("==================Customers Data Types=======================")
+print(customers_clean.dtypes)
+print(customers_clean.sample(20))
+print("==================Orders Data Types=======================")
+print(orders_clean.dtypes)
+print(orders_clean.sample(20))
+print("==================Products Data Types=======================")
+print(products_clean.dtypes)
+print(products_clean.sample(20))
+# === CELL 10 (code) ===
+# datetimes customer signup date formating first 
+
+customers_clean["signup_date"] = customers_data["signup_date"]
+print("==================Sign Up Date samples=========================")
+print(customers_clean["signup_date"].sample(30))
+
+print("==================Sign Up Date head=========================")
+print(customers_clean[
+    customers_clean["signup_date"].str.contains("/",na=False)
+]["signup_date"].head(20))
+
+print(customers_clean[
+    customers_clean["signup_date"].str.contains("-",na=False)
+]["signup_date"].head(20))
+
+
+print(customers_clean["signup_date"].isna().sum())
+
+
+customers_clean["signup_date_clean"] = pd.NaT
+
+
+iso_mask = customers_clean["signup_date"].str.contains(r"^\d{4}-" ,na=False)
+
+print("ISO MASK : \n" , iso_mask)
+
+customers_clean.loc[iso_mask , "signup_date_clean"] = pd.to_datetime(
+    customers_clean.loc[iso_mask,"signup_date"],
+    format="%Y-%m-%d",
+    errors="coerce"
+)
+
+slash_mask = customers_clean["signup_date"].str.contains("/",na=False)
+
+customers_clean.loc[slash_mask , "signup_date_clean"] = pd.to_datetime(
+    customers_clean.loc[slash_mask,"signup_date"],
+    format="%d/%m/%Y",
+    errors="coerce"
+)
+
+
+dash_mask = (
+    customers_clean["signup_date"].str.contains("-", na=False)
+    &
+    ~customers_clean["signup_date"].str.contains(r"^\d{4}-", na=False)
+)
+
+customers_clean.loc[dash_mask, "signup_date_clean"] = pd.to_datetime(
+    customers_clean.loc[dash_mask, "signup_date"],
+    format="%m-%d-%Y",
+    errors="coerce"
+)
+
+print("Original Missing:", customers_clean["signup_date"].isna().sum())
+
+print("Recovered Missing:", customers_clean["signup_date_clean"].isna().sum())
+
+print(customers_clean[
+    ["signup_date", "signup_date_clean"]
+].sample(20))
+
+
+customers_clean["signup_date"] = customers_clean["signup_date_clean"]
+
+customers_clean.drop(
+    columns="signup_date_clean",
+    inplace=True
+)
+
+print(customers_clean["signup_date"].sample(50))
+
+# Datatypes conversions using to_numeric and to_datetime
+
+# customers_clean["age"] = pd.to_numeric(
+#     customers_clean["age"],
+#     errors="coerce"
+# )
+
+# customers_clean["signup_date"] = pd.to_datetime(
+#     customers_clean["signup_date"],
+#     errors="coerce"
+# )
+
+# orders_clean["order_date"] = pd.to_datetime(
+#     orders_clean["order_date"],
+#     errors="coerce"
+# )
+
+# products_clean["price"] = pd.to_numeric(
+#     products_clean["price"],
+#     errors="coerce"
+# )
+
+
+# #justify the target datatype for each column after Coversion of data types using to_numerice and to_datetime
+# print("==================Customers Data Types=======================")
+# print(customers_clean.dtypes)
+# print(customers_clean.sample(20))
+# print("==================Orders Data Types=======================")
+# print(orders_clean.dtypes)
+# print(orders_clean.sample(20))
+# print("==================Products Data Types=======================")
+# print(products_clean.dtypes)
+# print(products_clean.sample(20))
+# === CELL 11 (code) ===
+# ================== Order Date Formatting ==================
+
+orders_clean["order_date"] = orders_data["order_date"]
+
+print("================ Order Date Sample =====================")
+print(orders_clean["order_date"].sample(30))
+
+print("================ Order Date Head =====================")
+
+# Slash format dates
+print(
+    orders_clean[
+        orders_clean["order_date"].str.contains("/", na=False)
+    ]["order_date"].head(20)
+)
+
+# Dash format dates
+print(
+    orders_clean[
+        orders_clean["order_date"].str.contains("-", na=False)
+    ]["order_date"].head(20)
+)
+
+print("Original Missing:", orders_clean["order_date"].isna().sum())
+
+# Create temporary clean column
+orders_clean["order_date_clean"] = pd.NaT
+
+# ===========================================================
+# ISO Format (YYYY-MM-DD)
+# ===========================================================
+
+iso_mask = orders_clean["order_date"].str.contains(
+    r"^\d{4}-",
+    na=False
+)
+
+orders_clean.loc[
+    iso_mask,
+    "order_date_clean"
+] = pd.to_datetime(
+    orders_clean.loc[
+        iso_mask,
+        "order_date"
+    ],
+    format="%Y-%m-%d",
+    errors="coerce"
+)
+
+# ===========================================================
+# Slash Format (DD/MM/YYYY)
+# ===========================================================
+
+slash_mask = orders_clean["order_date"].str.contains(
+    "/",
+    na=False
+)
+
+orders_clean.loc[
+    slash_mask,
+    "order_date_clean"
+] = pd.to_datetime(
+    orders_clean.loc[
+        slash_mask,
+        "order_date"
+    ],
+    format="%d/%m/%Y",
+    errors="coerce"
+)
+
+# ===========================================================
+# Dash Format (MM-DD-YYYY)
+# Exclude ISO dates
+# ===========================================================
+
+dash_mask = (
+    orders_clean["order_date"].str.contains("-", na=False)
+    &
+    ~orders_clean["order_date"].str.contains(r"^\d{4}-", na=False)
+)
+
+orders_clean.loc[
+    dash_mask,
+    "order_date_clean"
+] = pd.to_datetime(
+    orders_clean.loc[
+        dash_mask,
+        "order_date"
+    ],
+    format="%m-%d-%Y",
+    errors="coerce"
+)
+
+# ===========================================================
+# Validation
+# ===========================================================
+
+print("Original Missing:", orders_clean["order_date"].isna().sum())
+
+print("Recovered Missing:", orders_clean["order_date_clean"].isna().sum())
+
+print(
+    orders_clean[
+        ["order_date", "order_date_clean"]
+    ].sample(20)
+)
+
+# Replace original column
+orders_clean["order_date"] = orders_clean["order_date_clean"]
+
+# Remove temporary column
+orders_clean.drop(
+    columns="order_date_clean",
+    inplace=True
+)
+print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++==")
+print(orders_clean["order_date"].sample(30))
+# === CELL 12 (code) ===
+# Step 5.1 — Create a Missing Value Report
+
+print("============== Customers ================")
+print(
+(
+
+    customers_clean.isna().sum() / len(customers_clean) * 100 
+
+).round(2)
+    )
+print("============== Orders ================")
+print(
+    (
+    orders_clean.isna().sum() / len(orders_clean)*100
+     ).round(2)
+
+)
+
+print("============== Products ================")
+print(
+(
+     
+    products_clean.isna().sum() / len(products_clean)*100
+
+).round(2)
+    )
+
+
+# now investigating every missing column 
+print(f" based on customers phone \n {customers_clean[
+    customers_clean["phone"].isna()
+]}")
+print(f" based on customers email \n {customers_clean[
+    customers_clean["email"].isna()
+]}")
+print(f" based on customers signup dates \n {customers_clean[
+    customers_clean["signup_date"].isna()
+]}")
+print(f" based on orders order dates \n {orders_clean[
+    orders_clean["order_date"].isna()
+]}")
+print(f" based on orders payment method \n {orders_clean[
+    orders_clean["payment_method"].isna()
+]}")
+
+print(f" based on products price \n {products_clean[
+    products_clean["price"].isna()
+]}")
+print(f" based on products cost \n {products_clean[
+    products_clean["cost"].isna()
+]}")
+
+
+# missing columns percentages 
+print("=================== Missing Customers data % ========================")
+print((
+customers_clean.isna().sum()
+/
+len(customers_clean)
+*100
+).round(2))
+
+print("=================== Missing Orders data % ========================")
+print((
+orders_clean.isna().sum()
+/
+len(orders_clean)
+*100
+).round(2))
+
+print("=================== Missing Products data % ========================")
+
+print((
+products_clean.isna().sum()
+/
+len(products_clean)
+*100
+).round(2))
+# === CELL 13 (code) ===
+# Single Column Signup date investigation in customers dataset 
+
+print(customers_clean.loc[
+    customers_clean["signup_date"].isna()
+])
+print("===================== ++++++++++++++ ==========================")
+print(orders_clean[
+    orders_clean["customer_id"].isin(
+        customers_clean.loc[
+            customers_clean["signup_date"].isna(),
+            "customer_id"
+        ]
+    )
+])
+
+# these vlues remain NaT due to nto valid proof for drop or change
+#sign up date cannot be recovered from the available datasets.
+
+# Column: signup date
+
+# Investigation:
+# Cross-checked all customers with missing signup date against the Orders dataset using customer_id.
+
+# Finding:
+# Orders dataset does not contain signup date, therefore missing values cannot be recovered.
+
+# Decision:
+# Keep missing values (NaN).
+# === CELL 14 (code) ===
+# Single Column phone investigation in customers dataset 
+
+print(customers_clean.loc[
+    customers_clean["phone"].isna()
+])
+print("===================== ++++++++++++++ ==========================")
+print(orders_clean[
+    orders_clean["customer_id"].isin(
+        customers_clean.loc[
+            customers_clean["phone"].isna(),
+            "customer_id"
+        ]
+    )
+])
+#Phone numbers cannot be recovered from the available datasets.
+# Column: phone
+
+# Investigation:
+# Cross-checked all customers with missing phone numbers against the Orders dataset using customer_id.
+
+# Finding:
+# Orders dataset does not contain phone numbers, therefore missing values cannot be recovered.
+
+# Decision:
+# Keep missing values (NaN).
+# === CELL 15 (code) ===
+# Single Column email investigation in customers dataset 
+
+print(customers_clean.loc[
+    customers_clean["email"].isna()
+])
+print("===================== ++++++++++++++ ==========================")
+print(orders_clean[
+    orders_clean["customer_id"].isin(
+        customers_clean.loc[
+            customers_clean["email"].isna(),
+            "customer_id"
+        ]
+    )
+])
+# Investigation:
+# Cross-checked customers with missing email addresses against the Orders dataset.
+# Orders dataset does not contain customer email information.
+#
+# Conclusion:
+# Email addresses cannot be recovered from any available dataset.
+#
+# Decision:
+# Keep missing values (NaN).
+# === CELL 16 (code) ===
+# Single Column payment_method investigation in customers dataset 
+
+print(orders_clean.loc[
+    orders_clean["payment_method"].isna()
+])
+print("===================== ++++++++++++++ ==========================")
+print(orders_clean[
+    orders_clean["customer_id"].isin(
+        orders_clean.loc[
+            orders_clean["payment_method"].isna(),
+            "customer_id"
+        ]
+    )
+])
+# Investigation:
+# Cross-checked customers with missing payment_method addresses against the Orders dataset.
+# Orders dataset does not contain customer payment_method information.
+#
+# Conclusion:
+# payment_method addresses cannot be recovered from any available dataset.
+#
+# Decision:
+# Keep missing values (NaN).
+# === CELL 17 (code) ===
+print(products_clean.loc[
+    products_clean["price"].isna()
+])
+
+print("================ Related Orders ================")
+
+print(
+    orders_clean[
+        orders_clean["product_id"].isin(
+            products_clean.loc[
+                products_clean["price"].isna(),
+                "product_id"
+            ]
+        )
+    ]
+)
+# === CELL 18 (code) ===
+print(products_clean.loc[
+    products_clean["cost"].isna()
+])
+
+print("================ Related Orders ================")
+
+print(
+    orders_clean[
+        orders_clean["product_id"].isin(
+            products_clean.loc[
+                products_clean["cost"].isna(),
+                "product_id"
+            ]
+        )
+    ]
+)
+# === CELL 19 (code) ===
+# ================= Customers Missing Values =================
+
+# Phone
+# Decision:
+# Missing phone numbers cannot be recovered.
+# Phone numbers are unique identifiers.
+# Keeping NaN avoids creating fabricated customer information.
+
+# Email
+# Decision:
+# Missing email addresses cannot be recovered.
+# Email is a unique identifier.
+# Keeping NaN preserves data integrity.
+
+# Signup Date
+# Decision:
+# Signup date is a historical event.
+# Missing values cannot be inferred safely.
+# Keeping NaT avoids introducing incorrect customer history.
+# === CELL 20 (code) ===
+# ================= Orders Missing Values =================
+
+# Order Date
+# Decision:
+# Order dates represent historical transactions.
+# Missing values cannot be safely inferred.
+# Keeping NaT preserves business history.
+
+# Payment Method
+# Decision:
+# Customers may use different payment methods for different orders.
+# Missing values cannot be inferred reliably.
+# Keeping NaN avoids creating incorrect transaction records.
+# === CELL 21 (code) ===
+# This is what professional data scientists usually do.
+
+# They use:
+
+# Group Median
+# Group Mean
+
+# instead of
+
+# Overall Median
+
+print("=================Categories Wise grouping of price ==========================")
+print(products_clean.groupby("category")["price"].describe())
+
+print("=================Categories Wise grouping of cost ==========================")
+print(products_clean.groupby("category")["cost"].describe())
+
+
+print(products_clean["price"].dtype)
+print(products_clean["cost"].dtype)
+
+
+print(
+    products_clean[
+        pd.to_numeric(products_clean["price"], errors="coerce").isna()
+    ][["product_id", "price"]]
+)
+# === CELL 22 (code) ===
+# Step 6.1.
+
+# First inspect all non-numeric values
+
+
+print(
+products_clean[
+    pd.to_numeric(products_clean["price"], errors="coerce").isna()
+][["product_id","price"]]
+)
+
+products_clean["price"] = (
+    products_clean["price"]
+    .str.replace(" PKR", "", regex=False)
+)
+
+products_clean["price"] = (
+    products_clean["price"]
+    .replace("five hundred", "500")
+)
+
+products_clean["price"] = pd.to_numeric(
+    products_clean["price"],
+    errors="coerce"
+)
+
+print(products_clean["price"].dtype)
+# === CELL 23 (code) ===
+print(
+    products_clean.groupby("category")["price"].median()
+)
+
+print()
+
+print(
+    products_clean.groupby("category")["cost"].median()
+)
+# === CELL 24 (code) ===
+products_clean["price"] = (
+    products_clean.groupby("category")["price"]
+    .transform(lambda x: x.fillna(x.median()))
+)
+
+products_clean["cost"] = (
+    products_clean.groupby("category")["cost"]
+    .transform(lambda x: x.fillna(x.median()))
+)
+
+print(products_clean["price"].isna().sum())
+print(products_clean["cost"].isna().sum())
+
+# This is the same strategy commonly used in real-world data science and machine learning projects because products in the same category tend to have similar price ranges, making category-wise median imputation much more reliable than filling with a single overall median.
+# === CELL 25 (code) ===
+#First, let's see whether there are impossible ages.
+
+print("\n============= Investigate the Statics of Age =====================")
+print(customers_clean["age"].describe())
+# numeric mein convert karo
+customers_clean["age"] = pd.to_numeric(
+    customers_clean["age"],
+    errors="coerce"
+)
+# checking age 
+print(customers_clean["age"].unique())
+print("\n============= Ages less then 18 =====================")
+print(
+    customers_clean.loc[
+        customers_clean["age"] < 18,
+        ["customer_id" , "full_name" , "age"]
+    ]
+)
+print("\n============= Ages greater then 100 =====================")
+print(
+    customers_clean.loc[
+        customers_clean["age"] >100,
+        ["customer_id" , "full_name" , "age"]
+    ]
+)
+print("\n============= Ages Distribution  =====================")
+
+print(
+    customers_clean["age"].value_counts().sort_index()
+)
+
+
+# === CELL 26 (code) ===
+# lets see business rule and then clean data by making copy of median . because media doesnot effect average data value
+
+
+print("================ Filling invlid Values with Null =================")
+customers_clean.loc[
+    (customers_clean["age"] < 18) |
+    (customers_clean["age"] > 100),
+    "age"
+] = pd.NA
+
+print("=============== Fill with Median Age =======================")
+
+
+median_age = customers_clean["age"].median()
+
+print("median " , median_age)
+
+customers_clean["age"] = customers_clean["age"].fillna(median_age)
+
+print("===============  Verify ================")
+
+print(customers_clean["age"].describe())
+
+print(
+    customers_clean.loc[
+        (customers_clean["age"] < 18) |
+        (customers_clean["age"] > 100)
+    ]
+)
+
+
+# === CELL 27 (code) ===
+#First, let's see whether there are impossible phone numbers.
+print("================ Phone Information ================")
+
+print("Phone Data Type:")
+print(customers_clean["phone"].dtype)
+
+print("\nMissing Phones:")
+print(customers_clean["phone"].isna().sum())
+
+print("\nUnique Sample:")
+print(customers_clean["phone"].dropna().sample(20))
+
+print("\n================ Invalid Length =================")
+
+phone_length = customers_clean["phone"].str.len()
+
+print(
+    customers_clean.loc[
+        phone_length != 11,
+        ["customer_id", "full_name", "phone"]
+    ]
+)
+
+print("\n================ Placeholder Values =================")
+
+print(
+    customers_clean.loc[
+        customers_clean["phone"] == "123",
+        ["customer_id", "full_name", "phone"]
+    ]
+)
+
+print("\n================ Phone Length Distribution =================")
+
+print(
+    customers_clean["phone"]
+    .str.len()
+    .value_counts(dropna=False)
+    .sort_index()
+)
+# === CELL 28 (code) ===
+#Replace Invalid Phones
+
+customers_clean.loc[
+    customers_clean["phone"] == "123",
+    "phone"
+] = pd.NA
+
+customers_clean.loc[
+    customers_clean["phone"] == "abcd123",
+    "phone"
+] = pd.NA
+
+
+#Verify
+
+
+print("missing Phones : ")
+
+print(customers_clean["phone"].isna().sum())
+
+
+print("Invalid Placeholder")
+
+print(
+    customers_clean[
+        customers_clean["phone"].isin(["123" , "abcd123"])
+    ]
+)
+# === CELL 29 (code) ===
+# Email Verification 
+
+print("================ Email Information ================")
+
+print("Missing Emails:")
+print(customers_clean["email"].isna().sum())
+
+print("\nEmail Data Type:")
+print(customers_clean["email"].dtype)
+
+print("\n================ Invalid Email Format =================")
+
+invalid_email = customers_clean[
+    customers_clean["email"].notna() &
+    ~customers_clean["email"].str.contains(
+        r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+        regex=True,
+        na=False
+    )
+]
+
+print(invalid_email[
+    ["customer_id", "full_name", "email"]
+])
+
+print("\nNumber of invalid emails:")
+print(len(invalid_email))
+# === CELL 30 (code) ===
+# Convert invalid emails to missing values
+
+customers_clean.loc[
+    ~customers_clean["email"].str.contains(
+        r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+        regex=True,
+        na=False
+    ),
+    "email"
+] = pd.NA
+
+#Verify
+
+print("Missing Emails:")
+print(customers_clean["email"].isna().sum())
+
+print()
+
+print(
+    customers_clean[
+        customers_clean["email"].notna() &
+        ~customers_clean["email"].str.contains(
+            r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+            regex=True,
+            na=False
+        )
+    ]
+)
+# === CELL 31 (code) ===
+# Step 1 — Investigate Shipping Cost
+
+print("================ Shipping Cost Information ================")
+
+print("Data Type:")
+print(orders_clean["shipping_cost"].dtype)
+
+print("\nMissing Values:")
+print(orders_clean["shipping_cost"].isna().sum())
+
+print("\nSummary Statistics:")
+print(orders_clean["shipping_cost"].describe())
+
+print("\nNegative Shipping Cost:")
+
+print(
+    orders_clean.loc[
+        orders_clean["shipping_cost"] < 0,
+        ["order_id", "shipping_cost"]
+    ]
+)
+
+print("\nNumber of Negative Values:")
+
+print(
+    (orders_clean["shipping_cost"] < 0).sum()
+)
+# === CELL 32 (code) ===
+#Investigate Whether We Can Recover It
+print("================ Negative Shipping Cost by Order Status ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["shipping_cost"] == -50,
+        "order_status"
+    ].value_counts()
+)
+
+print("\n================ Negative Shipping Cost by Payment Method ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["shipping_cost"] == -50,
+        "payment_method"
+    ].value_counts(dropna=False)
+)
+
+print("\n================ Average Shipping Cost by Order Status ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["shipping_cost"] >= 0
+    ]
+    .groupby("order_status")["shipping_cost"]
+    .describe()
+)
+
+print("\n================ Average Shipping Cost by Payment Method ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["shipping_cost"] >= 0
+    ]
+    .groupby("payment_method")["shipping_cost"]
+    .describe()
+)
+# === CELL 33 (code) ===
+#Clean Shipping Cost
+
+print("================ Replace Invalid Shipping Cost ================")
+
+
+orders_clean.loc[
+    orders_clean["shipping_cost"] < 0,
+    "shipping_cost"
+] = pd.NA
+
+print("Missing After replacing invalid values : ")
+
+print(orders_clean["shipping_cost"].isna().sum())
+
+print("\n================ Fill Missing with Median ================")
+
+shipping_cost_median = orders_clean["shipping_cost"].median()
+
+print("shipping median : " , shipping_cost_median)
+
+orders_clean["shipping_cost"] =  ( orders_clean["shipping_cost"].fillna(shipping_cost_median) )
+
+print("=========== Verification =============")
+
+print("\nMissing Values : ")
+print(orders_clean["shipping_cost"].isna().sum())
+
+print("\nNegative Values : ")
+
+print((orders_clean["shipping_cost"] < 0 ).sum())
+
+print("\nDescribe Statistics : ")
+
+print(orders_clean["shipping_cost"].describe())
+# === CELL 34 (code) ===
+#Investigate Discount
+
+print("================ Discount Information ================")
+
+print("Data Type:")
+print(orders_clean["discount"].dtype)
+
+print("\nMissing Values:")
+print(orders_clean["discount"].isna().sum())
+
+print("\nSummary Statistics:")
+print(orders_clean["discount"].describe())
+
+print("\nUnique Discount Values:")
+print(
+    sorted(orders_clean["discount"].unique())
+)
+
+print("\n================ Discount Distribution ================")
+
+print(
+    orders_clean["discount"]
+    .value_counts()
+    .sort_index()
+)
+
+print("\n================ Negative Discounts ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["discount"] < 0,
+        ["order_id", "discount"]
+    ]
+)
+
+print("\nNumber of Negative Discounts:")
+print(
+    (orders_clean["discount"] < 0).sum()
+)
+
+print("\n================ Discounts Greater Than 100 ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["discount"] > 100,
+        ["order_id", "discount"]
+    ]
+)
+
+print("\nNumber of Discounts Greater Than 100:")
+print(
+    (orders_clean["discount"] > 100).sum()
+)
+# === CELL 35 (code) ===
+#Investigate Discount Patterns
+
+print("================ Invalid Discount by Order Status ================")
+
+
+print(
+    orders_clean.loc[
+        (orders_clean["discount"] < 0) |
+        (orders_clean["discount"] > 100),
+        "order_status"
+    ].value_counts()
+)
+
+print("\n================ Invalid Discount by Payment Method ================")
+
+print(
+    orders_clean.loc[
+        (orders_clean["discount"] < 0) |
+        (orders_clean["discount"] > 100),
+        "payment_method"
+                
+    ].value_counts(dropna=False)
+)
+
+
+print("\n================ Valid Discount by Order Status ================")
+
+print(
+    orders_clean.loc[
+
+    orders_clean["discount"].between(0,100)
+    ]
+    .groupby("order_status")["discount"]
+    .describe()
+)
+
+
+print("\n================ Valid Discount by Payment Method ================")
+
+
+print(
+    orders_clean.loc[
+        orders_clean["discount"].between(0,100)
+    ]
+    .groupby("payment_method")["discount"]
+    .describe()
+)
+# === CELL 36 (code) ===
+#Clean Discount
+
+print("================ Replace Invalid Discounts ================")
+
+orders_clean.loc[
+    (orders_clean["discount"] < 0) |
+    (orders_clean["discount"] > 100),
+    "discount"
+] = pd.NA
+
+print("Missing after replacing invalid values:")
+print(orders_clean["discount"].isna().sum())
+
+print("\n================ Fill Missing with Median ================")
+
+discount_median = orders_clean["discount"].median()
+
+print("Median Discount:", discount_median)
+
+orders_clean["discount"] = (
+    orders_clean["discount"]
+    .fillna(discount_median)
+)
+
+print("\n================ Verification ================")
+
+print("Missing Values:")
+print(orders_clean["discount"].isna().sum())
+
+print("\nInvalid Discounts (<0 or >100):")
+print(
+    ((orders_clean["discount"] < 0) |
+     (orders_clean["discount"] > 100)).sum()
+)
+
+print("\nSummary Statistics:")
+print(orders_clean["discount"].describe())
+
+print("\nUnique Discounts:")
+print(sorted(orders_clean["discount"].unique()))
+# === CELL 37 (code) ===
+#Investigation
+
+# Investigate Quantity
+
+print("================ Quantity Information ================")
+
+print("Data Type:")
+print(orders_clean["quantity"].dtype)
+
+print("\nMissing Values:")
+print(orders_clean["quantity"].isna().sum())
+
+print("\nSummary Statistics:")
+print(orders_clean["quantity"].describe())
+
+print("\nUnique Quantities:")
+print(sorted(orders_clean["quantity"].unique()))
+
+print("\n================ Quantity Distribution ================")
+
+print(
+    orders_clean["quantity"]
+    .value_counts()
+    .sort_index()
+)
+
+print("\n================ Invalid Quantities (<=0) ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["quantity"] <= 0,
+        ["order_id", "customer_id", "product_id", "quantity"]
+    ]
+)
+
+print("\nNumber of Invalid Quantities:")
+
+print(
+    (orders_clean["quantity"] <= 0).sum()
+)
+# === CELL 38 (code) ===
+# Investigate Quantity Patterns
+
+print("================ Invalid Quantity by Order Status ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["quantity"] <= 0,
+        "order_status"
+    ].value_counts()
+)
+
+print("\n================ Invalid Quantity by Payment Method ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["quantity"] <= 0,
+        "payment_method"
+    ].value_counts(dropna=False)
+)
+
+print("\n================ Valid Quantity by Order Status ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["quantity"] > 0
+    ]
+    .groupby("order_status")["quantity"]
+    .describe()
+)
+
+print("\n================ Valid Quantity by Payment Method ================")
+
+print(
+    orders_clean.loc[
+        orders_clean["quantity"] > 0
+    ]
+    .groupby("payment_method")["quantity"]
+    .describe()
+)
+# === CELL 39 (code) ===
+#Clean Quantity
+
+
+print("=============== Replace Invalid Values ===============")
+
+orders_clean.loc[
+    (orders_clean["quantity"] <= 0) ,
+    "quantity"
+] = pd.NA
+
+print("=============== Missing after repalcing values to null")
+
+print(orders_clean["quantity"].isna().sum())
+
+print("=============== Find and Place Median to the null values in quantity")
+
+quantity_median = orders_clean["quantity"].median()
+
+print("Quantity Median : " , quantity_median)
+
+orders_clean["quantity"] = (
+    orders_clean["quantity"].fillna(quantity_median)
+)
+
+print("\n================ Verification ================")
+
+print("Missing Values:")
+print(orders_clean["quantity"].isna().sum())
+
+print("\nInvalid Quantities (<=0):")
+print((orders_clean["quantity"] <= 0).sum())
+
+print("\nSummary Statistics:")
+print(orders_clean["quantity"].describe())
+
+print("\nUnique Quantities:")
+print(sorted(orders_clean["quantity"].unique()))
+# === CELL 40 (code) ===
+
+# creting csv files in output > cleaned_data folder for saving clean data 
+import os
+
+os.makedirs("../output/cleaned_data", exist_ok=True)
+
+customers_clean.to_csv(
+    "../output/cleaned_data/customers_clean.csv",
+    index=False
+)
+
+orders_clean.to_csv(
+    "../output/cleaned_data/orders_clean.csv",
+    index=False
+)
+
+products_clean.to_csv(
+    "../output/cleaned_data/products_clean.csv",
+    index=False
+)
+
+print("✅ Files Saved Successfully!")
+# === CELL 41 (code) ===
+# Phase 2 — Exploratory Data Analysis (EDA)
+
+
+
+# Step 1 — Dataset Overview
+
+# First, verify that all datasets are clean.
+
+print("================ Customers Dataset ================")
+
+print("Shape:", customers_clean.shape)
+
+print("\nData Types:")
+print(customers_clean.dtypes)
+
+print("\nMissing Values:")
+print(customers_clean.isna().sum())
+
+print("\nDuplicate Rows:")
+print(customers_clean.duplicated().sum())
+
+print("\nFirst Five Rows:")
+print(customers_clean.head())
+
+
+
+print("\n\n================ Orders Dataset ================")
+
+print("Shape:", orders_clean.shape)
+
+print("\nData Types:")
+print(orders_clean.dtypes)
+
+print("\nMissing Values:")
+print(orders_clean.isna().sum())
+
+print("\nDuplicate Rows:")
+print(orders_clean.duplicated().sum())
+
+print("\nFirst Five Rows:")
+print(orders_clean.head())
+
+
+
+print("\n\n================ Products Dataset ================")
+
+print("Shape:", products_clean.shape)
+
+print("\nData Types:")
+print(products_clean.dtypes)
+
+print("\nMissing Values:")
+print(products_clean.isna().sum())
+
+print("\nDuplicate Rows:")
+print(products_clean.duplicated().sum())
+
+print("\nFirst Five Rows:")
+print(products_clean.head())
+# === CELL 42 (code) ===
+#EDA Step 2 — Customer Analysis
+
+#Let's begin answering business questions about the customers.
+
+## Customer Distribution by City
+
+# This analysis examines how customers are distributed across different cities.
+
+# Understanding customer concentration helps businesses:
+
+# - Identify major markets
+# - Allocate marketing budgets
+# - Plan logistics and delivery
+# - Target future business expansion
+
+# A bar chart is used to compare customer counts across cities.
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.set_style("whitegrid")
+
+# ================= Customer Distribution by City =================
+
+city_counts = (
+    customers_clean["city"]
+    .value_counts()
+)
+
+print("================ Customers by City ================")
+print(city_counts)
+
+plt.figure(figsize=(8,5))
+
+sns.barplot(
+    x=city_counts.index,
+    y=city_counts.values,
+    hue=city_counts.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Customers by City")
+plt.xlabel("City")
+plt.ylabel("Number of Customers")
+
+plt.xticks(rotation=45)
+
+plt.show()
+
+# ### Insights
+
+# - Karachi has the highest number of customers (298), making it the company's largest customer market.
+# - The remaining cities have relatively similar customer counts, ranging from 91 to 109 customers.
+# - Quetta has the fewest customers, indicating potential opportunities for customer acquisition and market expansion.
+# - Overall, the customer base is moderately concentrated in Karachi while remaining geographically distributed across other major cities in Pakistan.
+
+# ### Business Recommendation
+
+# - Prioritize marketing campaigns and customer retention strategies in Karachi to maximize revenue.
+# - Increase promotional activities in cities with fewer customers to improve market penetration.
+# - Maintain a balanced logistics and customer support network across all major cities.
+# === CELL 43 (code) ===
+# Next Step (EDA Step 3)
+
+# Now we'll analyze Customer Gender Distribution to answer:
+
+# What percentage of customers are Male, Female, and Unknown?
+# Is the customer base balanced?
+# What business insights can we derive?
+
+# This is the next logical step in customer profiling before analyzing age and signup trends.
+
+# ================= Customer Distribution by Gender =================
+
+gender_count = (
+    customers_clean["gender"]
+    .value_counts()
+)
+
+print("================ Customers by Gender ================")
+
+print(gender_count)
+
+plt.figure(figsize=(8,5))
+
+sns.barplot(
+    x=gender_count.index,
+    y=gender_count.values,
+    hue=gender_count.index,
+    palette="viridis",
+    legend=False
+)
+
+
+plt.title("Customer Distribution by Gender")
+plt.xlabel("Genders")
+plt.ylabel("Number of Customers")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+# === CELL 44 (code) ===
+# ================= Customer Age Distribution =================
+
+print("================ Age Statistics ================")
+
+print(customers_clean["age"].describe())
+
+plt.figure(figsize=(8,5))
+
+sns.histplot(
+    customers_clean["age"],
+    bins=10,
+    kde=True,
+    color="royalblue"
+)
+
+plt.title("Customer Age Distribution")
+plt.xlabel("Age")
+plt.ylabel("Number of Customers")
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 45 (code) ===
+# ================= Customer Signup Trend =================
+
+signup_year = (
+    customers_clean["signup_date"]
+    .dt.year
+    .value_counts()
+    .sort_index()
+)
+
+
+print("================ Customers by Signup Year ================")
+
+
+print(signup_year)
+
+plt.figure(figsize=(8,5))
+
+sns.lineplot(
+    x=signup_year.index,
+    y=signup_year.values,
+    marker="o"
+)
+
+
+plt.title("Customer Signup Trend")
+plt.xlabel("Year")
+plt.ylabel("Number of Customers")
+
+plt.tight_layout()
+
+plt.show()
+
+
+
+# Business Insights (after seeing the graph)
+
+# You will answer questions like:
+
+# Which year had the highest signups?
+# Which year had the lowest signups?
+# Is the business growing?
+# Did customer acquisition decline?
+# What should management do?
+# Why are we doing this?
+
+# A company always wants to know:
+
+# Are new customers increasing?
+# Is marketing working?
+# Which years need improvement?
+
+# This is a very common KPI in EDA dashboards.
+
+# === CELL 46 (code) ===
+# ================= Customer Signup Trend ( Monthly ) =================
+
+signup_month = (
+    customers_clean["signup_date"]
+    .dt.to_period("M")
+    .dt.to_timestamp()
+    .value_counts()
+    .sort_index()
+)
+
+
+
+signup_table = pd.crosstab(
+    customers_clean["signup_date"].dt.year,
+    customers_clean["signup_date"].dt.month
+)
+
+
+print("================ Customers by Signup Month ================")
+print(signup_table)
+
+
+print(signup_month)
+
+plt.figure(figsize=(15,5))
+
+sns.lineplot(
+    x=signup_month.index,
+    y=signup_month.values,
+    marker="o"
+)
+
+
+
+plt.title("Customer Signup Trend")
+plt.xlabel("Year")
+plt.ylabel("Number of Customers")
+plt.xticks(rotation=45)
+
+plt.grid(True)
+
+plt.tight_layout()
+
+plt.show()
+
+# === CELL 47 (code) ===
+# ================= Merge Orders with Products =================
+
+
+orders_products = orders_clean.merge(
+    products_clean,
+    on="product_id",
+    how="left"
+)
+
+print(orders_products.head())
+# === CELL 48 (code) ===
+# ================= Orders by Category =================
+
+category_orders = (
+    orders_products["category"]
+    .value_counts()
+)
+
+print("================ Orders by Category ================")
+
+print(category_orders)
+
+plt.figure(figsize=(9,5))
+
+sns.barplot(
+    x=category_orders.index,
+    y=category_orders.values,
+    hue=category_orders.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Orders by Product Category")
+plt.xlabel("Category")
+plt.ylabel("Number of Orders")
+
+plt.xticks(rotation=30)
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 49 (code) ===
+#Create Revenue Column
+
+orders_products["revenue"] = (
+    orders_products["price"] *
+    orders_products["quantity"] *
+    (1 - orders_products["discount"] / 100)
+)
+
+print(orders_products[[
+    "price",
+    "quantity",
+    "discount",
+    "revenue"
+]].head())
+
+#Revenue by Category
+
+category_revenue = (
+    orders_products
+    .groupby("category")["revenue"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+print("================ Revenue by Category ================")
+print(category_revenue)
+
+#Plot
+
+plt.figure(figsize=(9,5))
+
+sns.barplot(
+    x=category_revenue.index,
+    y=category_revenue.values,
+    hue=category_revenue.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Revenue by Product Category")
+plt.xlabel("Category")
+plt.ylabel("Revenue")
+
+plt.xticks(rotation=30)
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 50 (code) ===
+# ================= Orders by Status =================
+
+status_count = (
+    orders_clean["order_status"]
+    .value_counts()
+)
+
+print("================ Orders by Status ================")
+print(status_count)
+
+plt.figure(figsize=(8,5))
+
+sns.barplot(
+    x=status_count.index,
+    y=status_count.values,
+    hue=status_count.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Orders by Status")
+plt.xlabel("Order Status")
+plt.ylabel("Number of Orders")
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 51 (code) ===
+# ================= Revenue by Order Status =================
+from matplotlib.ticker import FuncFormatter
+status_revenue = (
+    orders_products
+    .groupby("order_status")["revenue"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+print("================ Revenue by Order Status ================")
+print(status_revenue)
+
+plt.figure(figsize=(8,5))
+
+sns.barplot(
+    x=status_revenue.index,
+    y=status_revenue.values,
+    hue=status_revenue.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Revenue by Order Status")
+plt.xlabel("Order Status")
+plt.ylabel("Revenue")
+plt.gca().yaxis.set_major_formatter(
+    FuncFormatter(lambda x, _: f"{x:,.0f}")
+)
+plt.tight_layout()
+
+plt.show()
+# === CELL 52 (code) ===
+# ================= Payment Method Distribution =================
+
+payment_count = (
+    orders_clean["payment_method"]
+    .fillna("Unknown")
+    .value_counts()
+)
+
+print("================ Orders by Payment Method ================")
+print(payment_count)
+
+plt.figure(figsize=(8,5))
+
+sns.barplot(
+    x=payment_count.index,
+    y=payment_count.values,
+    hue=payment_count.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Orders by Payment Method")
+plt.xlabel("Payment Method")
+plt.ylabel("Number of Orders")
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 53 (code) ===
+# ================= Monthly Orders Trend =================
+
+monthly_orders = (
+    orders_clean["order_date"]
+    .dt.to_period("M")
+    .dt.to_timestamp()
+    .value_counts()
+    .sort_index()
+)
+
+print("================ Monthly Orders ================")
+print(monthly_orders)
+
+plt.figure(figsize=(10,5))
+
+sns.lineplot(
+    x=monthly_orders.index,
+    y=monthly_orders.values,
+    marker="o"
+)
+
+plt.title("Monthly Orders Trend")
+plt.xlabel("Month")
+plt.ylabel("Number of Orders")
+
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 54 (code) ===
+# ================= Monthly Revenue Trend =================
+
+monthly_revenue = (
+    orders_products
+    .groupby(
+        orders_products["order_date"]
+        .dt.to_period("M")
+        .dt.to_timestamp()
+    )["revenue"]
+    .sum()
+)
+
+print("================ Monthly Revenue ================")
+print(monthly_revenue)
+
+plt.figure(figsize=(10,5))
+
+sns.lineplot(
+    x=monthly_revenue.index,
+    y=monthly_revenue.values,
+    marker="o"
+)
+
+plt.title("Monthly Revenue Trend")
+plt.xlabel("Month")
+plt.ylabel("Revenue")
+
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 55 (code) ===
+# ================= Top 10 Best Selling Products =================
+
+top_products = (
+    orders_products
+    .groupby("product_name")["quantity"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+print("================ Top 10 Best Selling Products ================")
+print(top_products)
+
+plt.figure(figsize=(10,5))
+
+sns.barplot(
+    x=top_products.values,
+    y=top_products.index,
+    hue=top_products.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Top 10 Best Selling Products")
+plt.xlabel("Total Quantity Sold")
+plt.ylabel("Product")
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 56 (code) ===
+# ================= Top 10 Revenue Generating Products =================
+
+top_revenue_products = (
+    orders_products
+    .groupby("product_name")["revenue"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+print("================ Top 10 Revenue Generating Products ================")
+print(top_revenue_products)
+
+plt.figure(figsize=(10,5))
+
+sns.barplot(
+    x=top_revenue_products.values,
+    y=top_revenue_products.index,
+    hue=top_revenue_products.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Top 10 Revenue Generating Products")
+plt.xlabel("Revenue")
+plt.ylabel("Product")
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 57 (code) ===
+# ================= Top Customers by Revenue =================
+
+customer_revenue = (
+    orders_products
+    .groupby("customer_id")["revenue"]
+    .sum()
+    .sort_values(ascending=False)
+    .head(10)
+)
+
+print("================ Top 10 Customers by Revenue ================")
+print(customer_revenue)
+
+plt.figure(figsize=(10,5))
+
+sns.barplot(
+    x=customer_revenue.index,
+    y=customer_revenue.values,
+    hue=customer_revenue.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Top 10 Customers by Revenue")
+plt.xlabel("Customer ID")
+plt.ylabel("Revenue (PKR)")
+
+plt.ticklabel_format(style="plain", axis="y")
+plt.xticks(rotation=45)
+
+plt.tight_layout()
+
+plt.show()
+
+# === CELL 58 (code) ===
+# ================= Merge Customer City =================
+
+orders_full = orders_products.merge(
+    customers_clean[["customer_id", "city"]],
+    on="customer_id",
+    how="left"
+)
+
+print(orders_full.head())
+# ================= Revenue by City =================
+
+city_revenue = (
+    orders_full
+    .groupby("city")["revenue"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+print("================ Revenue by City ================")
+print(city_revenue)
+
+plt.figure(figsize=(10,5))
+
+sns.barplot(
+    x=city_revenue.index,
+    y=city_revenue.values,
+    hue=city_revenue.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Revenue by City")
+plt.xlabel("City")
+plt.ylabel("Revenue (PKR)")
+
+# Show full numbers instead of scientific notation
+plt.ticklabel_format(style="plain", axis="y")
+
+plt.xticks(rotation=30)
+
+plt.tight_layout()
+
+plt.show()
+
+# === CELL 59 (code) ===
+# ================= Revenue by Payment Method =================
+
+payment_revenue = (
+    orders_products
+    .assign(payment_method=orders_products["payment_method"].fillna("Unknown"))
+    .groupby("payment_method")["revenue"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+print("================ Revenue by Payment Method ================")
+print(payment_revenue)
+
+plt.figure(figsize=(8,5))
+
+sns.barplot(
+    x=payment_revenue.index,
+    y=payment_revenue.values,
+    hue=payment_revenue.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Revenue by Payment Method")
+plt.xlabel("Payment Method")
+plt.ylabel("Revenue (PKR)")
+
+# Show full revenue values
+plt.ticklabel_format(style="plain", axis="y")
+
+plt.tight_layout()
+
+plt.show()
+
+# === CELL 60 (code) ===
+# ================= Create Profit Column =================
+
+orders_products["profit"] = (
+    (orders_products["price"] - orders_products["cost"])
+    * orders_products["quantity"]
+    * (1 - orders_products["discount"] / 100)
+)
+
+print(
+    orders_products[
+        ["price", "cost", "quantity", "discount", "profit"]
+    ].head()
+)
+
+# ================= Profit by Category =================
+
+category_profit = (
+    orders_products
+    .groupby("category")["profit"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+print("================ Profit by Category ================")
+print(category_profit)
+
+plt.figure(figsize=(9,5))
+
+sns.barplot(
+    x=category_profit.index,
+    y=category_profit.values,
+    hue=category_profit.index,
+    palette="viridis",
+    legend=False
+)
+
+plt.title("Profit by Product Category")
+plt.xlabel("Category")
+plt.ylabel("Profit (PKR)")
+
+# Display full numbers on the y-axis
+plt.ticklabel_format(style="plain", axis="y")
+
+plt.xticks(rotation=30)
+
+plt.tight_layout()
+
+plt.show()
+# === CELL 61 (code) ===
+# ================= Phase 3 — Feature Engineering =================
+# This keeps our workflow organized:
+# Step 1 — Create Working Copy
+
+orders_features = orders_products.copy()
+
+print("============== Orders features =================")
+
+print("Shap: ",orders_products.shape)
+
+print("\nColumn: ")
+print(orders_products.columns.tolist())
+
+print("\nFirst Five Rows: ")
+print(orders_products.head())
+
+print("================ Existing Numerical Features ================")
+
+print(
+    orders_features[
+        ["price", "cost", "quantity", "discount", "shipping_cost", "revenue"]
+    ].head()
+)
+
+print("\n================ Data Types ================")
+
+print(
+    orders_features[
+        ["price", "cost", "quantity", "discount", "shipping_cost", "revenue"]
+    ].dtypes
+)
+# === CELL 62 (code) ===
+# ================= Step 2 — Order-Level Features =================
+
+print("================ Creating Order-Level Features ================")
+
+
+orders_features["discount_amount"] = (
+    orders_features["price"] *
+    orders_features["quantity"]*
+    ( orders_features["discount"] / 100)
+)
+
+
+orders_features["order_year"] = (
+    orders_features["order_date"].dt.year
+)
+
+
+orders_features["order_month"] = (
+    orders_features["order_date"].dt.month
+)
+
+orders_features["order_quarter"] = (
+    orders_features["order_date"].dt.quarter
+)
+
+orders_features["order_weekday"] = (
+    orders_features["order_date"].dt.day_name()
+)
+
+print("\n Features Created Successfully !! ")
+print("\n Columns : ")
+
+print(
+    orders_features[
+        [
+            "order_id",
+            "price",
+            "quantity",
+            "discount",
+            "discount_amount",
+            "order_year",
+            "order_month",
+            "order_quarter",
+            "order_weekday"
+        ]
+    ].head()
+)
+# === CELL 63 (code) ===
+# ================= Profit Margin =================
+
+
+orders_features["profit_margin"] = (
+    (orders_features["profit"]/
+    orders_features["revenue"])*
+    100
+)
+
+
+print("================= Profit Margin =================")
+
+
+print(
+    orders_features[
+        [
+
+        "order_id",
+        "revenue",
+        "profit",
+        "profit_margin"
+        ]
+    ].head()
+)
+# === CELL 64 (code) ===
+# Create
+#   ↓
+# Inspect
+#   ↓
+# Validate
+#   ↓
+#  Use
+
+
+print("\n================ Profit Margin Statistics ================")
+
+print(
+    orders_features["profit_margin"].describe()
+)
+
+print("\n================ Invalid Profit Margins ================")
+
+print(
+    orders_features.loc[
+        (orders_features["profit_margin"] < 0) |
+        (orders_features["profit_margin"] > 100),
+        [
+            "order_id",
+            "revenue",
+            "profit",
+            "profit_margin"
+        ]
+    ]
+)
+# === CELL 65 (code) ===
+# ================= Investigate Abnormal Profit Margins =================
+
+print("================ Abnormal Profit Margin Orders ================")
+
+abnormal_margin = orders_features[
+    (orders_features["profit_margin"] < 0) |
+    (orders_features["profit_margin"] > 100)
+]
+
+print(
+    abnormal_margin[
+        [
+            "order_id",
+            "price",
+            "cost",
+            "quantity",
+            "discount",
+            "discount_amount",
+            "revenue",
+            "profit",
+            "profit_margin"
+        ]
+    ].head(20)
+)
+
+print("\n================ Negative Revenue ================")
+
+print(
+    orders_features.loc[
+        orders_features["revenue"] < 0,
+        [
+            "order_id",
+            "price",
+            "quantity",
+            "discount",
+            "revenue",
+            "profit"
+        ]
+    ]
+)
+
+print("\nNumber of Negative Revenue Orders:")
+
+print(
+    (orders_features["revenue"] < 0).sum()
+)
+# === CELL 66 (code) ===
+# ================= Investigate Invalid Prices =================
+
+print("================ Price Information ================")
+
+print("Data Type:")
+print(orders_products["price"].dtype)
+
+print("\nMissing Values:")
+print(orders_products["price"].isna().sum())
+
+print("\nSummary Statistics:")
+print(orders_products["price"].describe())
+
+print("\nMinimum Price:")
+print(orders_products["price"].min())
+
+print("\nMaximum Price:")
+print(orders_products["price"].max())
+
+
+print("\n================ Invalid Prices (<=0) ================")
+
+invalid_prices = orders_products.loc[
+    orders_products["price"] <= 0,
+    [
+        "order_id",
+        "product_id",
+        "product_name",
+        "category",
+        "price",
+        "cost",
+        "quantity",
+        "discount"
+    ]
+]
+
+print(invalid_prices)
+
+print("\nNumber of Invalid Prices:")
+print((orders_products["price"] <= 0).sum())
+# === CELL 67 (code) ===
+# ================= Clean Order Price =================
+
+print("================ Price Cleaning ================")
+
+# Count invalid prices
+invalid_price = orders_products["price"].isna() | (orders_products["price"] <= 0)
+
+print("Missing or Invalid Prices Before:", invalid_price.sum())
+
+
+# Create product price lookup
+product_price_lookup = (
+    products_clean
+    .set_index("product_id")["price"]
+)
+
+
+# Recover missing and invalid prices using product_id
+orders_products.loc[invalid_price, "price"] = (
+    orders_products.loc[invalid_price, "product_id"]
+    .map(product_price_lookup)
+)
+
+
+print("\nMissing or Invalid Prices After:")
+
+print(
+    orders_products["price"].isna().sum()
+    + (orders_products["price"] <= 0).sum()
+)
+
+
+print("\nPrice Statistics After Cleaning:")
+print(orders_products["price"].describe())
+# === CELL 68 (code) ===
+print("\n================ Verification ================")
+
+print("Missing Prices:")
+print(orders_products["price"].isna().sum())
+
+print("\nInvalid Prices (<= 0):")
+print((orders_products["price"] <= 0).sum())
+
+print("\nMinimum Price:")
+print(orders_products["price"].min())
+
+print("\nMaximum Price:")
+print(orders_products["price"].max())
+# === CELL 69 (code) ===
+# ================= Investigate Product ID Matching =================
+
+print("================ Product ID Data Types ================")
+
+print("Orders Product ID:")
+print(orders_products["product_id"].dtype)
+
+print("\nProducts Product ID:")
+print(products_clean["product_id"].dtype)
+
+
+print("\n================ Sample Product IDs ================")
+
+print("Orders:")
+print(orders_products["product_id"].head(10).tolist())
+
+print("\nProducts:")
+print(products_clean["product_id"].head(10).tolist())
+
+
+print("\n================ Matching Product IDs ================")
+
+matching_ids = orders_products["product_id"].isin(
+    products_clean["product_id"]
+)
+
+print("Matching IDs:")
+print(matching_ids.sum())
+
+print("Non-Matching IDs:")
+print((~matching_ids).sum())
+
+
+print("\n================ Invalid Price Product IDs ================")
+
+invalid_price = (
+    orders_products["price"].isna() |
+    (orders_products["price"] <= 0)
+)
+
+print(
+    orders_products.loc[
+        invalid_price,
+        ["product_id", "price"]
+    ].head(20)
+)
+# === CELL 70 (code) ===
+# ================= Recover Invalid Prices =================
+
+invalid_price = orders_products["price"] <= 0
+
+print("================ Invalid Prices Before ================")
+print(invalid_price.sum())
+
+
+# Product price lookup
+product_price_lookup = (
+    products_clean
+    .set_index("product_id")["price"]
+)
+
+
+# Recover invalid prices from products_clean
+orders_products.loc[invalid_price, "price"] = (
+    orders_products.loc[invalid_price, "product_id"]
+    .map(product_price_lookup)
+)
+
+
+print("\n================ Verification ================")
+
+print("Invalid Prices After:")
+print(
+    (orders_products["price"] <= 0).sum()
+)
+
+print("\nMissing Prices:")
+print(
+    orders_products["price"].isna().sum()
+)
+
+print("\nMinimum Price:")
+print(
+    orders_products["price"].min()
+)
+
+# ================= Investigate Missing Product IDs =================
+
+missing_price = orders_products["price"].isna()
+
+missing_product_ids = (
+    orders_products.loc[
+        missing_price,
+        "product_id"
+    ]
+    .value_counts()
+)
+
+print("================ Missing Price Product IDs ================")
+
+print(missing_product_ids)
+
+print("\nNumber of Unique Missing Product IDs:")
+print(missing_product_ids.nunique())
+
+print("\nTotal Orders with Missing Prices:")
+print(missing_price.sum())
+# === CELL 71 (code) ===
+# ================= Investigate Missing Products =================
+
+missing_product_ids = (
+    orders_products.loc[
+        orders_products["price"].isna(),
+        "product_id"
+    ].unique()
+)
+
+print("================ Missing Products in Orders ================")
+
+print(missing_product_ids)
+
+print("\nNumber of Missing Product IDs:")
+print(len(missing_product_ids))
+
+
+print("\n================ Check Products Dataset ================")
+
+print(
+    products_clean[
+        products_clean["product_id"].isin(missing_product_ids)
+    ]
+)
+
+
+print("\n================ Orders for Missing Products ================")
+
+print(
+    orders_products.loc[
+        orders_products["product_id"].isin(missing_product_ids),
+        [
+            "order_id",
+            "product_id",
+            "product_name",
+            "category",
+            "price",
+            "cost",
+            "quantity",
+            "discount"
+        ]
+    ].head(30)
+)
+# === CELL 72 (code) ===
+# ================= Check Product Price Lookup =================
+
+product_price_lookup = (
+    products_clean
+    .set_index("product_id")["price"]
+)
+
+print("P0356 price:")
+print(product_price_lookup.get("P0356"))
+
+print("\nP0384 price:")
+print(product_price_lookup.get("P0384"))
+
+print("\nP0421 price:")
+print(product_price_lookup.get("P0421"))
+
+print("\nCurrent prices in orders:")
+print(
+    orders_products.loc[
+        orders_products["product_id"].isin(
+            ["P0356", "P0384", "P0421"]
+        ),
+        ["product_id", "price"]
+    ].head(20)
+)
+# === CELL 73 (code) ===
+# ================= Investigate Invalid Product Prices =================
+
+invalid_product_ids = (
+    products_clean.loc[
+        products_clean["price"] <= 0,
+        "product_id"
+    ]
+)
+
+print("================ Products with Invalid Prices ================")
+
+print(
+    products_clean[
+        products_clean["product_id"].isin(invalid_product_ids)
+    ]
+)
+# === CELL 74 (code) ===
+# ================= Convert Invalid Prices to Missing =================
+
+orders_products.loc[
+    orders_products["price"] <= 0,
+    "price"
+] = pd.NA
+
+print("================ Price Verification ================")
+
+print("Missing Prices:")
+print(orders_products["price"].isna().sum())
+
+print("Invalid Prices:")
+print((orders_products["price"] <= 0).sum())
+
+# ================= Price Quality Flag =================
+
+orders_products["price_available"] = (
+    orders_products["price"].notna()
+)
+
+print(
+    orders_products["price_available"].value_counts()
+)
+# === CELL 75 (code) ===
+# ================= Recalculate Financial Features =================
+
+# Revenue
+orders_products["revenue"] = (
+    orders_products["price"]
+    * orders_products["quantity"]
+    * (1 - orders_products["discount"] / 100)
+)
+
+# Profit
+orders_products["profit"] = (
+    orders_products["revenue"]
+    - (orders_products["cost"] * orders_products["quantity"])
+)
+
+print("================ Financial Features Recalculated ================")
+
+print(
+    orders_products[
+        [
+            "order_id",
+            "price",
+            "quantity",
+            "discount",
+            "cost",
+            "revenue",
+            "profit"
+        ]
+    ].head()
+)
+
+# ================= Profit Margin =================
+
+orders_products["profit_margin"] = (
+    orders_products["profit"]
+    / orders_products["revenue"]
+) * 100
+
+print("================ Profit Margin Statistics ================")
+
+print(
+    orders_products["profit_margin"].describe()
+)
+# === CELL 76 (code) ===
+# ================= Investigate Extreme Profit Margins =================
+
+extreme_margin = (
+    orders_products[
+        orders_products["profit_margin"] < -100
+    ][
+        [
+            "order_id",
+            "product_id",
+            "price",
+            "cost",
+            "quantity",
+            "discount",
+            "revenue",
+            "profit",
+            "profit_margin"
+        ]
+    ]
+    .sort_values("profit_margin")
+)
+
+print("================ Extreme Profit Margin Orders ================")
+
+print(extreme_margin.head(20))
+
+print("\nNumber of Extreme Margin Orders:")
+print(len(extreme_margin))
+
+# === CELL 77 (code) ===
+# ================= Suspicious Price vs Cost =================
+
+suspicious_prices = (
+    orders_products[
+        (orders_products["price"].notna()) &
+        (orders_products["cost"].notna()) &
+        (orders_products["price"] < orders_products["cost"])
+    ][
+        [
+            "product_id",
+            "product_name",
+            "category",
+            "price",
+            "cost"
+        ]
+    ]
+    .drop_duplicates()
+    .sort_values("price")
+)
+
+print("================ Products Where Price < Cost ================")
+
+print(suspicious_prices)
+print("\nNumber of Suspicious Products:")
+print(suspicious_prices["product_id"].nunique())
+
+print("\nNumber of Suspicious Orders:")
+print(
+    (
+        (orders_products["price"].notna()) &
+        (orders_products["cost"].notna()) &
+        (orders_products["price"] < orders_products["cost"])
+    ).sum()
+)
+# === CELL 78 (code) ===
+# ================= Customer-Level Features =================
+
+customer_features = (
+    orders_products
+    .groupby("customer_id")
+    .agg(
+        total_orders=("order_id" , "nunique"),
+        total_quantity=("quantity","sum"),
+        total_revenue=("revenue" , "sum"),
+        total_profit=("profit" , "sum"),
+        avg_order_value=("revenue" , "mean"),
+        avg_discount=("discount","mean"),
+        avg_quantity_per_order=("quantity" , "mean"),
+        first_order_date=("order_date" ,"min"),
+        last_order_date=("order_date" , "max"),
+
+    )
+    .reset_index()
+)
+
+
+print("================ Customer-Level Features ================")
+
+
+print(customer_features.head())
+
+print("\n Shape : " , customer_features.shape)
+# === CELL 79 (code) ===
+# ================= Customer Lifetime =================
+
+customer_features["customer_lifetime_days"] = (
+    customer_features["last_order_date"] 
+    - customer_features["first_order_date"]
+).dt.days
+
+
+print("================= Customer Lifetime =================")
+
+
+print(
+    customer_features[
+        [
+            "customer_id",
+            "first_order_date",
+            "last_order_date",
+            "customer_lifetime_days",
+
+        ]
+    ].head()
+)
+# === CELL 80 (code) ===
+# ================= Customer Profit Margin =================
+
+customer_features["profit_margin"] = (
+    customer_features["total_profit"]
+    / customer_features["total_revenue"]
+    * 100
+)
+
+print("================ Customer Profit Margin ================")
+
+print(
+    customer_features[
+        [
+            "customer_id",
+            "total_revenue",
+            "total_profit",
+            "profit_margin"
+        ]
+    ].head()
+)
+# === CELL 81 (code) ===
+print("================ Customer Feature Statistics ================")
+
+print(customer_features.describe())
+
+print("================ Missing Customer Features ================")
+
+print(customer_features.isna().sum())
+# === CELL 82 (code) ===
+print(orders_products.head())
+
+
+print("================== Product Level Features =====================")
+
+
+
+products_features = (
+    orders_products
+    .groupby(
+        [
+
+        "product_id",
+        "product_name",
+        "category"
+        ],
+        dropna=False
+    )
+    .agg(
+        total_orders=(
+            "order_id",
+            "count"
+        ),
+        total_quantity=(
+            "quantity",
+            "sum"
+        ),
+        total_revenue=(
+            "revenue",
+            "sum"
+        ),
+        total_profit=(
+            "profit",
+            "sum"
+        ),
+        avg_price=(
+            "price",
+            "mean"
+        ),
+        avg_discount=(
+            "discount",
+            "mean"
+        )
+
+    )
+    .reset_index()
+)
+
+
+print(products_features.head())
+
+print("\nShape : " , products_features.shape)
+
+products_features["profit_margin"] = (
+    products_features["total_profit"]
+    /
+    products_features["total_revenue"]
+)*100
+
+
+products_features["avg_revenue_per_order"] = (
+    products_features["total_revenue"]
+    /
+    products_features["total_orders"]
+)
+
+
+products_features["avg_quantity_per_order"] = (
+    products_features["total_quantity"]
+    /
+    products_features["total_orders"]
+)
+
+
+products_features["avg_profit_per_order"] = (
+    products_features["total_profit"]
+    /
+    products_features["total_orders"]
+)
+
+print("\n================ Missing Values ================") 
+
+
+print(
+    products_features.isna().sum()
+)
+
+
+print("\n================ Summary Statistics ================")
+
+
+print(
+    products_features.describe(
+        include="all"
+    )
+)
+# === CELL 83 (code) ===
+# ================= Product Lifetime Features =================
+
+print("================ Product Lifetime Features ================\n")
+
+
+product_dates = (
+    orders_features
+    .groupby("product_id")
+    .agg(
+        first_sale_date=("order_date" , "min"),
+        last_sale_date=("order_date" , "max")
+    )
+    .reset_index()
+)
+
+
+
+products_features = products_features.merge(
+    product_dates,
+    on="product_id",
+    how="left"
+)
+
+
+products_features["product_lifetime_days"] = (
+    products_features["last_sale_date"]
+    -
+    products_features["first_sale_date"]
+).dt.days
+
+
+
+print(
+    products_features[
+        [
+
+        "product_id",
+        "first_sale_date",
+        "last_sale_date",
+        "product_lifetime_days"
+        ]
+    ].head()
+)
+# === CELL 84 (code) ===
+# ================= Revenue Contribution =================
+
+print("\n================ Revenue Contribution ================\n")
+
+
+total_company_revenue = products_features["total_revenue"].sum()
+
+products_features["revenue_contribution"] = (
+    products_features["total_revenue"]
+    /
+    total_company_revenue
+)*100
+
+
+print(
+    products_features[
+        [
+            "product_id",
+            "total_revenue",
+            "revenue_contribution"
+        ]
+    ].head()
+)
+# === CELL 85 (code) ===
+# ================= Profit Contribution =================
+
+print("\n================ Profit Contribution ================\n")
+
+
+total_profit_contribution = products_features["total_profit"].sum()
+
+products_features["profit_contribution"] = (
+    products_features["total_profit"]
+    /
+    total_profit_contribution
+)*100
+
+
+print(
+    products_features[
+        [
+            "product_id",
+            "total_profit",
+            "profit_contribution"
+        ]
+    ].head()
+)
+# === CELL 86 (code) ===
+# ================= Revenue Ranking =================
+
+print("\n================ Revenue Ranking ================\n")
+
+products_features["revenue_rank"] = (
+    products_features["total_revenue"]
+    .rank(method="dense" , ascending=False)
+
+)
+
+
+print(
+    products_features[
+        [
+            "product_id",
+            "total_revenue",
+            "revenue_rank"
+        ]
+    ].head()
+)
+# === CELL 87 (code) ===
+# ================= Profit Ranking =================
+
+print("\n================ Profit Ranking ================\n")
+
+products_features["profit_rank"] = (
+    products_features["total_profit"]
+    .rank(method="dense" , ascending=False)
+)
+
+print(
+    products_features[
+        [
+            "product_id",
+            "total_profit",
+            "profit_rank"
+        ]
+    ].head()
+)
+
+
+# === CELL 88 (code) ===
+# ================= Quantity Ranking =================
+
+print("\n================ Quantity Ranking ================\n")
+
+products_features["quantity_rank"] = (
+    products_features["total_quantity"]
+    .rank(method="dense" , ascending=False)
+)
+
+print(
+    products_features[
+        [
+            "product_id",
+            "total_quantity",
+            "quantity_rank"
+        ]
+    ].head()
+)
+
+# === CELL 89 (code) ===
+# ================= ABC Analysis =================
+
+print("================ ABC Analysis ================\n")
+
+# Sort by revenue
+products_features = products_features.sort_values(
+    by="total_revenue",
+    ascending=False
+)
+
+# Running cumulative revenue
+products_features["cumulative_revenue"] = (
+    products_features["total_revenue"].cumsum()
+)
+
+# Cumulative percentage
+total_revenue = products_features["total_revenue"].sum()
+
+products_features["cumulative_revenue_percent"] = (
+    products_features["cumulative_revenue"]
+    /
+    total_revenue
+) * 100
+
+
+# Function for assigning class
+def abc_class(percent):
+
+    if percent <= 80:
+        return "A"
+
+    elif percent <= 95:
+        return "B"
+
+    else:
+        return "C"
+
+
+products_features["ABC_Class"] = (
+    products_features["cumulative_revenue_percent"]
+    .apply(abc_class)
+)
+
+print(products_features[
+[
+    "product_id",
+    "total_revenue",
+    "cumulative_revenue_percent",
+    "ABC_Class"
+]].head(20))
+# === CELL 90 (code) ===
+# ================= ABC Summary =================
+
+print("\n================ ABC Summary ================\n")
+
+print(products_features["ABC_Class"].value_counts())
+
+print("\nRevenue by Class\n")
+
+print(
+    products_features.groupby("ABC_Class")["total_revenue"].sum()
+)
+# === CELL 91 (code) ===
+# ================= Product Movement =================
+
+print("\n================ Product Movement ================\n")
+
+
+q1 = products_features["total_quantity"].quantile(0.33)
+q2 = products_features["total_quantity"].quantile(0.66)
+
+
+def movement(quantity):
+    if quantity <= q1:
+        return "Slow"
+    elif quantity <= q2:
+        return "Medium"
+    else:
+        return "Fast"
+
+products_features["movement"] = (
+    products_features["total_quantity"]
+    .apply(movement)
+)
+
+print(
+    products_features[
+        [
+            "product_id",
+            "total_quantity",
+            "movement"
+        ]
+    ].head(20)
+)
+
+
+print("\nMovement Summary\n")
+
+print(products_features["movement"].value_counts())
+
+
+# === CELL 92 (code) ===
+# ================= Top Revenue Products =================
+
+print("\n================ Top Revenue Products ================\n")
+
+print(
+
+products_features
+.nlargest(
+    10,
+    "total_revenue"
+)[
+[
+    "product_id",
+    "product_name",
+    "category",
+    "total_revenue",
+    "total_profit"
+]]
+
+)
+# === CELL 93 (code) ===
+# ================= Lowest Revenue Products =================
+
+print("\n================ Lowest Revenue Products ================\n")
+
+print(
+
+products_features
+.nsmallest(
+    10,
+    "total_revenue"
+)[
+[
+    "product_id",
+    "product_name",
+    "category",
+    "total_revenue",
+    "total_profit"
+]]
+
+)
+# === CELL 94 (code) ===
